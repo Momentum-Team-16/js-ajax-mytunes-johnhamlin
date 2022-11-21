@@ -20,17 +20,17 @@ const displayResults = function (data) {
     return newElement;
   };
 
-  data.results.forEach(result => {
+  data.results.forEach((result, index) => {
     const albumArt = result.artworkUrl100;
     const trackName = result.trackName;
     const artistName = result.artistName;
     const audioURL = result.previewUrl;
-    // console.log(result);
 
     const card = document.createElement('div');
     card.classList.add('card', 'm-4', 'p-0', 'border-0', 'shadow-sm');
-    // card.setAttribute('data-audioURL', audioURL);
     card.dataset.audioURL = audioURL;
+    card.dataset.trackName = trackName;
+    card.dataset.artistName = artistName;
 
     // Create card body where all items will be added
     const cardBody = buildAndAppendElement('', card, 'div', ['card-body']);
@@ -66,8 +66,11 @@ const search = function searchItunesAPI(event) {
     .then(displayResults);
 };
 
-const playSong = function (audioURL) {
-  console.log(audioURL);
+const playSong = function (card) {
+  const audioEl = document.getElementById('audio-player');
+  const nowPlayingEl = document.getElementById('now-playing');
+  audioEl.src = card.dataset.audioURL;
+  nowPlayingEl.innerText = `Now Playing: ${card.dataset.trackName} by ${card.dataset.artistName}`;
 };
 
 const getSongFromClick = function (event) {
@@ -77,8 +80,8 @@ const getSongFromClick = function (event) {
   while (!Array.from(card.classList).includes('card')) {
     card = card.parentElement;
   }
-  const audioURL = card.dataset.audioURL;
-  playSong(audioURL);
+
+  playSong(card);
 };
 
 const searchForm = document.getElementById('search-form');
