@@ -28,12 +28,20 @@
       </section>
 
       
+      
       <form id="search-form" class=" container row g-3 my-4 py-3 border-3 border-top border-bottom">
-        <div class="col">
+        <div class="col-md-7">
           <label for="search" class="visually-hidden">Search</label>
           <input id="search" type="text" class="form-control"  placeholder="Search for a song or artist...">
         </div>
-        <div class="col-auto">
+        <div class="col-md-3">
+          <select class="form-select" aria-label="Default select example">
+            <option value="1" selected>Song</option>
+            <option value="2">Artist</option>
+            <option value="3">Album</option>
+          </select>
+        </div>
+        <div class="col-md-2">
             <button  type="submit" class="btn btn-primary mb-3 px-5">Search</button>
         </div>
       </form>

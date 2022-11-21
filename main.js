@@ -63,13 +63,17 @@ const search = function searchItunesAPI(event) {
     `https://itunes.apple.com/search?term=${queryURI}&country=us&media=music&limit=20`
   )
     .then(response => response.json())
-    .then(displayResults);
+    .then(displayResults)
+    .catch(error =>
+      console.error('There was an error fetching the data for iTunes')
+    );
 };
 
 const playSong = function (card) {
   const audioEl = document.getElementById('audio-player');
   const nowPlayingEl = document.getElementById('now-playing');
   audioEl.src = card.dataset.audioURL;
+  audioEl.play();
   nowPlayingEl.innerText = `Now Playing: ${card.dataset.trackName} by ${card.dataset.artistName}`;
 };
 
