@@ -57,10 +57,13 @@ const search = function searchItunesAPI(event) {
   const searchField = document.getElementById('search');
   const query = searchField.value;
   const queryURI = encodeURIComponent(query);
+  const searchType = document.getElementById('search-type');
+  console.log(searchType.value);
+
   if (!query) return;
 
   fetch(
-    `https://itunes.apple.com/search?term=${queryURI}&country=us&media=music&limit=20`
+    `https://itunes.apple.com/search?term=${queryURI}&country=us&media=music&limit=20&entity=${searchType.value}`
   )
     .then(response => response.json())
     .then(displayResults)
