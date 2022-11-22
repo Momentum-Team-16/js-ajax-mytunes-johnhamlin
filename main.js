@@ -1,4 +1,23 @@
 'use strict';
+class SearchResult {
+  constructor(result) {
+    this.type = result.wrapperType;
+    this.art = result.artworkUrl100;
+    this.hed = result.artistName;
+    this.subHed = result.trackName;
+    this.audioURL = result.previewUrl;
+  }
+}
+
+// const keys = {
+//   track: {
+//     hed: result.artistName,
+//   },
+//   album: {},
+//   musicArtist: {},
+// };
+
+const searchResultsCache = {};
 
 // Function to handle all the DOM stuff
 const buildAndAppendElement = function (
@@ -20,24 +39,14 @@ const displayResults = function (data) {
     searchResults.removeChild(searchResults.firstChild);
   }
 
-  data.results.forEach((result, index) => {
-    // const keys = {
-    //   track: {
-    //     hed: result.artistName,
-    //   },
-    //   album: {},
-    //   musicArtist: {},
-    // };
-    const type = result.wrapperType;
+  data.results.forEach(result => {
+    const searchResult = new SearchResult(result);
+    const id = result.trackId || result.collectionId || result.artistId;
+    searchResultsCache[id] = searchResult;
+
     const card = document.createElement('div');
     card.classList.add('card', 'm-4', 'p-0', 'border-0', 'shadow-sm');
-    // Give nice names to things from the results and, if needed later, store them in datasets
-    const art = result.artworkUrl100;
-    card.dataset.hed = result.artistName;
-    card.dataset.subHed = result.trackName;
-    card.dataset.audioURL = result.previewUrl;
-    card.dataset.type = result.wrapperType;
-    console.log(card.dataset.type);
+    card.dataset.id = result.trackId;
 
     // Create and add album art
     const img = buildAndAppendElement('', card, 'img', [
@@ -45,13 +54,13 @@ const displayResults = function (data) {
       'card-img-top',
       // 'mb-1',
     ]);
-    img.src = art;
+    img.src = searchResult.art;
 
     // Create card body where all items will be added
     const cardBody = buildAndAppendElement('', card, 'div', ['card-body']);
     // Add artist name and track name
-    buildAndAppendElement(card.dataset.hed, cardBody, 'h4', ['card-title']);
-    buildAndAppendElement(card.dataset.subHed, cardBody, 'h6', [
+    buildAndAppendElement(searchResult.hed, cardBody, 'h4', ['card-title']);
+    buildAndAppendElement(searchResult.subHed, cardBody, 'h6', [
       'card-subtitle',
       'mb-2',
     ]);
@@ -81,8 +90,6 @@ const search = function searchItunesAPI(event) {
       'h3',
       ['text-align-center']
     );
-    console.log(temp);
-
     return;
   }
   const queryURI = encodeURIComponent(query);
@@ -94,12 +101,12 @@ const search = function searchItunesAPI(event) {
   if (searchType.value === 'musicArtist') return loadSongs(url);
 };
 
-const playSong = function (card) {
+const playSong = function (searchResult) {
   const audioEl = document.getElementById('audio-player');
   const nowPlayingEl = document.getElementById('now-playing');
-  audioEl.src = card.dataset.audioURL;
+  audioEl.src = searchResult.audioURL;
   audioEl.play();
-  nowPlayingEl.innerText = `Now Playing: ${card.dataset.trackName} by ${card.dataset.artistName}`;
+  nowPlayingEl.innerText = `Now Playing: ${searchResult.hed} by ${searchResult.subHed}`;
 };
 
 const getSongFromClick = function (event) {
@@ -111,8 +118,10 @@ const getSongFromClick = function (event) {
 
     card = card.parentElement;
   }
-  console.log(card);
-  if (card.dataset.type === 'track') playSong(card);
+  const searchResult = searchResultsCache[card.dataset.id];
+  console.log(searchResult);
+
+  if (searchResult.type === 'track') playSong(searchResult);
 };
 
 const searchForm = document.getElementById('search-form');
