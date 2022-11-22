@@ -8,6 +8,7 @@ class SearchResult {
     this.audioURL = result.previewUrl;
   }
 }
+const searchResultsCache = {};
 
 // const keys = {
 //   track: {
@@ -16,8 +17,6 @@ class SearchResult {
 //   album: {},
 //   musicArtist: {},
 // };
-
-const searchResultsCache = {};
 
 // Function to handle all the DOM stuff
 const buildAndAppendElement = function (
@@ -33,20 +32,27 @@ const buildAndAppendElement = function (
   return newElement;
 };
 
+const cacheResults = function (result) {
+  const searchResult = new SearchResult(result);
+  const id = result.trackId || result.collectionId || result.artistId;
+  searchResultsCache[id] = searchResult;
+  return [searchResult, id];
+};
+
 const displayResults = function (data) {
-  // remove all existing child nodes
+  // Clear the search results area
   while (searchResults.firstChild) {
     searchResults.removeChild(searchResults.firstChild);
   }
 
   data.results.forEach(result => {
-    const searchResult = new SearchResult(result);
-    const id = result.trackId || result.collectionId || result.artistId;
-    searchResultsCache[id] = searchResult;
+    // Create new object for the result and store it in the cache by a unique ID from the API
+    const [searchResult, id] = cacheResults(result);
 
+    // Build the card, store it's ID as as data tag and add it to the DOM
     const card = document.createElement('div');
     card.classList.add('card', 'm-4', 'p-0', 'border-0', 'shadow-sm');
-    card.dataset.id = result.trackId;
+    card.dataset.id = id;
 
     // Create and add album art
     const img = buildAndAppendElement('', card, 'img', [
@@ -58,7 +64,7 @@ const displayResults = function (data) {
 
     // Create card body where all items will be added
     const cardBody = buildAndAppendElement('', card, 'div', ['card-body']);
-    // Add artist name and track name
+    // Add headline and subheadling (usually artist name and track name)
     buildAndAppendElement(searchResult.hed, cardBody, 'h4', ['card-title']);
     buildAndAppendElement(searchResult.subHed, cardBody, 'h6', [
       'card-subtitle',
