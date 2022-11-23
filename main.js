@@ -41,9 +41,7 @@ const cacheResults = function (result) {
 
 const displayResults = function (data) {
   // Clear the search results area
-  while (searchResults.firstChild) {
-    searchResults.removeChild(searchResults.firstChild);
-  }
+  searchResults.replaceChildren();
 
   data.results.forEach(result => {
     // Create new object for the result and store it in the cache by a unique ID from the API
@@ -117,16 +115,9 @@ const playSong = function (searchResult) {
 
 const getSongFromClick = function (event) {
   if (event.target.id === 'search-results') return;
-  // get the top-level card element containing the event clicked
-  let card = event.target;
-  while (!Array.from(card.classList).includes('card')) {
-    console.log(card);
-
-    card = card.parentElement;
-  }
+  // get the top-level card element containing the event clicked, where the dataset.id is stored
+  let card = event.target.closest('.card');
   const searchResult = searchResultsCache[card.dataset.id];
-  console.log(searchResult);
-
   if (searchResult.type === 'track') playSong(searchResult);
 };
 
